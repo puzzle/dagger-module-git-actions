@@ -195,14 +195,14 @@ type MrConfig struct {
 
 func (m *GitActions) Run(ctx context.Context, key *File, apiToken string, version string) error {
 
-	_, err := os.Stat("./config.yaml")
+	_, err := os.Stat("./ci.yaml")
 	if err != nil {
 		//No config provided
 		fmt.Println("No config provided, skip task")
 		return nil
 	}
 
-	content, err := os.ReadFile("./config.yaml")
+	content, err := os.ReadFile("./ci.yaml")
 	if err != nil {
 		return err
 	}
