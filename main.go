@@ -224,7 +224,7 @@ func (m *GitActions) Run(ctx context.Context, key *File, apiToken string, versio
 	}
 
 	if !updated {
-		fmt.Println("skip task")
+		fmt.Println("skip task, no update needed")
 		return nil
 	}
 
