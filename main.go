@@ -49,7 +49,7 @@ func (m *GitActionRepository) Push(ctx context.Context, dir *Directory, prBranch
 		WithDirectory(WorkDir, dir)
 
 	if prBranch.isSet {
-		c = c.WithExec([]string{"git", "switch", prBranch.GetOr("main")})
+		c = c.WithExec([]string{"git", "switch", "-c", prBranch.GetOr("main")})
 	}
 
 	_, err := c.WithExec([]string{"git", "add", "."}).
@@ -62,6 +62,7 @@ func (m *GitActionRepository) Push(ctx context.Context, dir *Directory, prBranch
 
 func prepareContainer(key *File) *Container {
 	return dag.Container().
+		Pipeline("Prepare Git container").
 		From("registry.puzzle.ch/cicd/alpine-base:latest").
 		WithWorkdir(WorkDir).
 		WithFile("/tmp/.ssh/id", key, ContainerWithFileOpts{Permissions: 0400}).
