@@ -1,5 +1,0 @@
-opsRepository: git@ssh.gitlab.puzzle.ch:cschlatter/clone-test.git
-targetBranch: main
-environment: pitc-cicd-helm-demo-prod
-tags:
- - auto
