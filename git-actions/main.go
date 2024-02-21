@@ -12,19 +12,34 @@ type GitActions struct {
 }
 
 type GitActionRepository struct {
+	// URL of the Git repository
 	RepoUrl string
+	// SSH key with access credentials for the Git repository
 	SshKey  *File
 }
 
-func (m *GitActions) WithRepository(ctx context.Context, repoUrl string, sshKey *File) *GitActionRepository {
+// Configure Git repository access with ssh key
+func (m *GitActions) WithRepository(
+	// method call context
+	ctx context.Context,
+
+	// URL of the Git repository
+	repoUrl string,
+
+	// SSH key with access credentials for the Git repository
+	sshKey *File,
+) *GitActionRepository {
 	return &GitActionRepository{
 		RepoUrl: repoUrl,
 		SshKey:  sshKey,
 	}
 }
 
-// "git@ssh.gitlab.puzzle.ch:cschlatter/clone-test.git"
-func (m *GitActionRepository) CloneSsh(ctx context.Context) (*Directory, error) {
+// Clone Git repository using the SSH Key.
+func (m *GitActionRepository) CloneSsh(
+	// method call context
+	ctx context.Context,
+) (*Directory, error) {
 
 	if m.RepoUrl == "" || m.SshKey == nil {
 		return nil, fmt.Errorf("Repo URL and SSH Key must be set")
@@ -43,7 +58,19 @@ func (m *GitActionRepository) CloneSsh(ctx context.Context) (*Directory, error) 
 	return dir, nil
 }
 
-func (m *GitActionRepository) Push(ctx context.Context, dir *Directory, prBranch Optional[string]) error {
+// Commit local changes to the Git repository using the SSH Key.
+func (m *GitActionRepository) Push(
+	// method call context
+	ctx context.Context,
+
+	// local dir with the Git repository and the changes
+	dir *Directory,
+
+	// Git branch to push to.
+	// +optional
+	// +default='main'
+	prBranch Optional[string],
+) error {
 
 	c := prepareContainer(m.SshKey).
 		WithDirectory(WorkDir, dir)
