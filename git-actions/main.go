@@ -75,8 +75,8 @@ func (m *GitActionRepository) Push(
 	c := prepareContainer(m.SshKey).
 		WithDirectory(WorkDir, dir)
 
-	if prBranch.isSet {
-		c = c.WithExec([]string{"git", "switch", "-c", prBranch.GetOr("main")})
+	if prBranch != "" {
+		c = c.WithExec([]string{"git", "switch", "-c", prBranch})
 	}
 
 	_, err := c.WithExec([]string{"git", "add", "."}).
