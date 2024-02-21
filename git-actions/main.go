@@ -69,7 +69,7 @@ func (m *GitActionRepository) Push(
 	// Git branch to push to.
 	// +optional
 	// +default='main'
-	prBranch Optional[string],
+	prBranch string,
 ) error {
 
 	c := prepareContainer(m.SshKey).
