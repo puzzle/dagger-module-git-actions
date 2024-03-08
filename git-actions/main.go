@@ -1,3 +1,9 @@
+// Provides additional Git actions
+//
+// The main focus is to work with a Git Repository by SSH authentication.
+//
+// The Git Actions module is used in following example repository: https://github.com/puzzle/dagger-module-gitops/
+
 package main
 
 import (
