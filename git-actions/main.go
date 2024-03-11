@@ -74,7 +74,7 @@ func (m *GitActionRepository) Push(
 
 	// Git branch to push to.
 	// +optional
-	// +default='main'
+	// +default="main"
 	prBranch string,
 ) error {
 
