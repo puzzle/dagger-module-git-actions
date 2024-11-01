@@ -1,7 +1,0 @@
-{
-  "name": "modest",
-  "sdk": "go",
-  "dependencies": [
-    "git-actions"
-  ]
-}

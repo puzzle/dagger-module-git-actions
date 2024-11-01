@@ -8,6 +8,7 @@ package main
 
 import (
 	"context"
+	"dagger/git-actions/internal/dagger"
 	"fmt"
 	"time"
 )
@@ -21,7 +22,7 @@ type GitActionRepository struct {
 	// URL of the Git repository
 	RepoUrl string
 	// SSH key with access credentials for the Git repository
-	SshKey  *File
+	SshKey  *dagger.File
 }
 
 // Configure Git repository access with ssh key
@@ -33,7 +34,7 @@ func (m *GitActions) WithRepository(
 	repoUrl string,
 
 	// SSH key with access credentials for the Git repository
-	sshKey *File,
+	sshKey *dagger.File,
 ) *GitActionRepository {
 	return &GitActionRepository{
 		RepoUrl: repoUrl,
@@ -45,7 +46,7 @@ func (m *GitActions) WithRepository(
 func (m *GitActionRepository) CloneSsh(
 	// method call context
 	ctx context.Context,
-) (*Directory, error) {
+) (*dagger.Directory, error) {
 
 	if m.RepoUrl == "" || m.SshKey == nil {
 		return nil, fmt.Errorf("Repo URL and SSH Key must be set")
@@ -70,7 +71,7 @@ func (m *GitActionRepository) Push(
 	ctx context.Context,
 
 	// local dir with the Git repository and the changes
-	dir *Directory,
+	dir *dagger.Directory,
 
 	// Git branch to push to.
 	// +optional
@@ -93,12 +94,11 @@ func (m *GitActionRepository) Push(
 	return err
 }
 
-func prepareContainer(key *File) *Container {
+func prepareContainer(key *dagger.File) *dagger.Container {
 	return dag.Container().
-		Pipeline("Prepare Git container").
 		From("registry.puzzle.ch/cicd/alpine-base:latest").
 		WithWorkdir(WorkDir).
-		WithFile("/tmp/.ssh/id", key, ContainerWithFileOpts{Permissions: 0400}).
+		WithFile("/tmp/.ssh/id", key, dagger.ContainerWithFileOpts{Permissions: 0400}).
 		WithEnvVariable("GIT_SSH_COMMAND", "ssh -i /tmp/.ssh/id -o StrictHostKeyChecking=no").
 		WithEnvVariable("CACHE_BUSTER", time.Now().String()).
 		WithExec([]string{"git", "config", "--global", "user.name", "dagger-bot"}).
