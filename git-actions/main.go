@@ -22,7 +22,7 @@ type GitActionRepository struct {
 	// URL of the Git repository
 	RepoUrl string
 	// SSH key with access credentials for the Git repository
-	SshKey  *dagger.File
+	SshKey *dagger.File
 }
 
 // Configure Git repository access with ssh key
