@@ -1,6 +1,7 @@
 {
   "name": "git-actions",
-  "sdk": "go",
-  "source": ".",
-  "engineVersion": "v0.13.5"
+  "engineVersion": "v0.18.9",
+  "sdk": {
+    "source": "go"
+  }
 }
