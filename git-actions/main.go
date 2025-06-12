@@ -29,10 +29,8 @@ type GitActionRepository struct {
 func (m *GitActions) WithRepository(
 	// method call context
 	ctx context.Context,
-
 	// URL of the Git repository
 	repoUrl string,
-
 	// SSH key with access credentials for the Git repository
 	sshKey *dagger.File,
 ) *GitActionRepository {
@@ -52,7 +50,7 @@ func (m *GitActionRepository) CloneSsh(
 		return nil, fmt.Errorf("Repo URL and SSH Key must be set")
 	}
 
-	c, err := prepareContainer(m.SshKey).
+	c, err := prepareContainer(m.SshKey, "", "").
 		WithExec([]string{"git", "clone", m.RepoUrl, "."}).
 		Sync(ctx)
 
@@ -69,17 +67,27 @@ func (m *GitActionRepository) CloneSsh(
 func (m *GitActionRepository) Push(
 	// method call context
 	ctx context.Context,
-
 	// local dir with the Git repository and the changes
 	dir *dagger.Directory,
-
 	// Git branch to push to.
 	// +optional
 	// +default="main"
 	prBranch string,
+	// Commit message
+	// +optional
+	// +default="autocommit"
+	commitMessage string,
+	// Git user name
+	// +optional
+	// +default="dagger-bot"
+	userName string,
+	// Git user email
+	// +optional
+	// +default="cicd@puzzle.ch"
+	userEmail string,
 ) error {
 
-	c := prepareContainer(m.SshKey).
+	c := prepareContainer(m.SshKey, userName, userEmail).
 		WithDirectory(WorkDir, dir)
 
 	if prBranch != "" {
@@ -87,21 +95,29 @@ func (m *GitActionRepository) Push(
 	}
 
 	_, err := c.WithExec([]string{"git", "add", "."}).
-		WithExec([]string{"git", "commit", "-m", "autocommit"}).
+		WithExec([]string{"git", "commit", "-m", commitMessage}).
 		WithExec([]string{"git", "push"}).
 		Sync(ctx)
 
 	return err
 }
 
-func prepareContainer(key *dagger.File) *dagger.Container {
+func prepareContainer(
+	key *dagger.File,
+	// +optional
+	// +default="dagger-bot"
+	userName string,
+	// +optional
+	// +default="cicd@puzzle.ch"
+	userEmail string,
+) *dagger.Container {
 	return dag.Container().
 		From("registry.puzzle.ch/cicd/alpine-base:latest").
 		WithWorkdir(WorkDir).
 		WithFile("/tmp/.ssh/id", key, dagger.ContainerWithFileOpts{Permissions: 0400}).
 		WithEnvVariable("GIT_SSH_COMMAND", "ssh -i /tmp/.ssh/id -o StrictHostKeyChecking=no").
 		WithEnvVariable("CACHE_BUSTER", time.Now().String()).
-		WithExec([]string{"git", "config", "--global", "user.name", "dagger-bot"}).
-		WithExec([]string{"git", "config", "--global", "user.email", "cicd@puzzle.ch"}).
+		WithExec([]string{"git", "config", "--global", "user.name", userName}).
+		WithExec([]string{"git", "config", "--global", "user.email", userEmail}).
 		WithExec([]string{"git", "config", "--global", "--add", "--bool", "push.autoSetupRemote", "true"})
 }
