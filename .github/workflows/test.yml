@@ -2,6 +2,8 @@ name: Dagger test
 
 on:
   push:
+    branches:
+      - main
   pull_request:
   # configure manual trigger
   workflow_dispatch:
